@@ -11,11 +11,11 @@ def balance_DS(X, y, random_state=42):
     wildtypeIDs = set([item[0] for item in X.index.str.split("_")])
     random.seed(random_state)
     size_smaller_group = y.value_counts().min()
-    pos_IDs = set(y[y==1].index)
-    neg_IDs = set(y[y==0].index)
+    pos_IDs = list(y[y==1].index)				#	changed from set to list
+    neg_IDs = list(y[y==0].index)				#	changed from set to list
     neg_IDs= random.sample(neg_IDs, size_smaller_group)
     pos_IDs= random.sample(pos_IDs, size_smaller_group)
-    balancedIDs = set(pos_IDs + neg_IDs)
+    balancedIDs = list(pos_IDs + neg_IDs)				#	changed from set to list
     y_bal = y.loc[balancedIDs,]
     X_bal = X.loc[balancedIDs,]    
     return(X_bal, y_bal)
@@ -93,15 +93,19 @@ def kmer_features_of_protein(seq, k):
     feat = pd.DataFrame(feat)    
     for i in range(0,l):
         aa = seq[i]
-        feat[aa][max(0,i-k+1):min(lk1,i+1)] += 1
+        #feat[aa][max(0,i-k+1):min(lk1,i+1)] += 1
+        feat.loc[max(0,i-k+1):min(lk1,i+1),aa] += 1	#	pandas 3.0 prep
         for f in AA_FEAT[aa]:
-            feat[f][max(0,i-k+1):min(lk1,i+1)] += 1    
+            #feat[f][max(0,i-k+1):min(lk1,i+1)] += 1    
+            feat.loc[max(0,i-k+1):min(lk1,i+1),f] += 1    
     rangelen = l-1
     for i in range(0, rangelen):
         double = seq[i:i+2]
-        feat[double][max(0,i-k+2):min(lk1,i+1)] += 1
+        #feat[double][max(0,i-k+2):min(lk1,i+1)] += 1
+        feat.loc[max(0,i-k+2):min(lk1,i+1),double] += 1	#	pandas 3.0 prep
         diam_double = diam_seq[i:i+2]
-        feat["d_" + diam_double][max(0,i-k+2):min(lk1,i+1)] += 1
+        #feat["d_" + diam_double][max(0,i-k+2):min(lk1,i+1)] += 1
+        feat.loc[max(0,i-k+2):min(lk1,i+1),"d_" + diam_double] += 1	#	pandas 3.0 prep
     return(feat)  
 
 AA_FEAT = {'A':["sc_hydrophobic", "d_S"], 
